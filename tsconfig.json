@@ -5,6 +5,7 @@
     "target": "esnext",
 
     "outDir": "dist",
+    "sourceMap": true,
 
     "strict": true,
     "esModuleInterop": true,
@@ -12,5 +13,5 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "**/*.spec.ts"]
+  "exclude": ["node_modules/**/*", "**/*.spec.ts", "**/*.d.ts"]
 }

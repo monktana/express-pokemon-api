@@ -1,8 +1,8 @@
 import express from 'express'
-import { DataTypes, Sequelize } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize'
 import { Pokemon, PokemonTypes } from './pokemon/models'
 import * as pokemonRoutes from './pokemon/routes'
-import { Type } from './types/models'
+import { Type, TypeMatchup } from './types/models'
 import * as typeRoutes from './types/routes'
 
 const port = 3000
@@ -14,57 +14,57 @@ Pokemon.init(
     id: {
       type: DataTypes.SMALLINT,
       autoIncrement: true,
-      primaryKey: true,
+      primaryKey: true
     },
     name: {
       type: DataTypes.CHAR(50),
-      allowNull: false,
+      allowNull: false
     },
     baseExperience: {
       type: DataTypes.SMALLINT,
-      allowNull: false,
+      allowNull: false
     },
     height: {
       type: DataTypes.SMALLINT,
-      allowNull: false,
+      allowNull: false
     },
     weight: {
       type: DataTypes.SMALLINT,
-      allowNull: false,
+      allowNull: false
     },
     pokedexEntry: {
       type: DataTypes.TEXT,
-      allowNull: false,
-    },
+      allowNull: false
+    }
   },
   {
     tableName: 'Pokemon',
     timestamps: false,
-    sequelize,
+    sequelize
   }
-);
+)
 
 Type.init(
   {
     id: {
       type: DataTypes.SMALLINT,
       autoIncrement: true,
-      primaryKey: true,
+      primaryKey: true
     },
     name: {
       type: DataTypes.CHAR(50),
-      allowNull: false,
+      allowNull: false
     },
     damageClass: {
       type: DataTypes.CHAR(50),
-      allowNull: false,
-    },
+      allowNull: false
+    }
   },
   {
     timestamps: false,
-    sequelize,
+    sequelize
   }
-);
+)
 
 PokemonTypes.init(
   {
@@ -81,16 +81,43 @@ PokemonTypes.init(
         model: Type,
         key: 'id'
       }
-    },
+    }
   },
   {
     timestamps: false,
-    sequelize,
+    sequelize
   }
-);
+)
 
-Pokemon.belongsToMany(Type, {as: 'types', through: PokemonTypes, foreignKey: 'pokemonId', otherKey: 'typeId'});
-Type.belongsToMany(Pokemon, {as: 'pokemon', through: PokemonTypes, foreignKey: 'typeId', otherKey: 'pokemonId'});
+TypeMatchup.init(
+  {
+    attackingTypeId: {
+      type: DataTypes.SMALLINT,
+      references: {
+        model: Type,
+        key: 'id'
+      }
+    },
+    defendingTypeId: {
+      type: DataTypes.SMALLINT,
+      references: {
+        model: Type,
+        key: 'id'
+      }
+    },
+    damageClass: {
+      type: DataTypes.REAL
+    }
+  },
+  {
+    timestamps: false,
+    sequelize
+  }
+)
+
+Pokemon.belongsToMany(Type, { as: 'types', through: PokemonTypes, foreignKey: 'pokemonId', otherKey: 'typeId' })
+Type.belongsToMany(Pokemon, { as: 'pokemon', through: PokemonTypes, foreignKey: 'typeId', otherKey: 'pokemonId' })
+Type.belongsToMany(Type, { as: 'matchups', through: TypeMatchup, foreignKey: 'attackingTypeId', otherKey: 'defendingTypeId' })
 
 app.get('/pokemon', pokemonRoutes.list)
 app.get('/pokemon/:id([0-9]*$)', pokemonRoutes.get)

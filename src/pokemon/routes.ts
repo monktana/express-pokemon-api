@@ -44,9 +44,22 @@ Pokemon.init(
 export async function list(request: Request, response: Response, next: NextFunction): Promise<void> {
   try {
     const pokemon = await Pokemon.findAll();
-    console.log(`Found ${pokemon.length} pokemon.`);
-    response.send(JSON.stringify(pokemon));
+    response.status(200).send(pokemon);
   } catch (error) {
-    console.error('Unable to connect to the database:', error);
+    next(error)
+  }
+}
+
+export async function get(request: Request, response: Response, next: NextFunction): Promise<void> {
+  const id = request.params.id;
+
+  try {
+    const pokemon = await Pokemon.findByPk(id);
+    if (!pokemon) {
+      throw new Error(`no ressource found with id ${id}`)
+    }
+    response.status(200).send(pokemon);
+  } catch (error) {
+    next(error)
   }
 }

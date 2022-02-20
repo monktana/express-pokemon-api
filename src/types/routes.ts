@@ -31,9 +31,22 @@ Type.init(
 export async function list(request: Request, response: Response, next: NextFunction): Promise<void> {
   try {
     const types = await Type.findAll();
-    console.log(`Found ${types.length} types.`);
-    response.send(JSON.stringify(types));
+    response.status(200).send(types);
   } catch (error) {
-    console.error('Unable to connect to the database:', error);
+    next(error)
+  }
+}
+
+export async function get(request: Request, response: Response, next: NextFunction): Promise<void> {
+  const id = request.params.id;
+
+  try {
+    const type = await Type.findByPk(id);
+    if (!type) {
+      throw new Error(`no ressource found with id ${id}`)
+    }
+    response.status(200).send(type);
+  } catch (error) {
+    next(error)
   }
 }

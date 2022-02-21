@@ -4,6 +4,8 @@ import { Pokemon, PokemonTypes } from './pokemon/models'
 import * as pokemonRoutes from './pokemon/routes'
 import { Type, TypeMatchup } from './types/models'
 import * as typeRoutes from './types/routes'
+import { ResourceNotFoundErrorHandler } from './validation/resource/middleware'
+import { WrongParameterErrorHandler } from './validation/types/parameters/middleware'
 
 const port = 3000
 const app = express()
@@ -124,6 +126,9 @@ app.get('/pokemon/:id([0-9]*$)', pokemonRoutes.get)
 
 app.get('/types', typeRoutes.list)
 app.get('/types/:id([0-9]*$)', typeRoutes.get)
+
+app.use(WrongParameterErrorHandler)
+app.use(ResourceNotFoundErrorHandler)
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)

@@ -2,8 +2,10 @@ import { NextFunction, Request, Response } from 'express'
 import { Pokemon } from './models'
 import { Type } from '../types/models'
 import { QueryParameters } from './queryParameters'
-import { Op } from 'sequelize'
+import sequelize, { Op } from 'sequelize'
 import { ResourceNotFoundError } from '../validation/resource/error'
+import { WrongParameterError } from '../validation/types/parameters/error'
+
 
 export async function list(request: Request, response: Response, next: NextFunction): Promise<void> {
   try {
@@ -23,11 +25,15 @@ export async function list(request: Request, response: Response, next: NextFunct
       offset: queryParameters.start
     }
 
-    const joinWhereClause: {[k: string]: string[]} = {}
-    if (queryParameters.types)
-      joinWhereClause.name = queryParameters.types
+    if (queryParameters.types) {
+      const typeIds = (await Type.findAll({ attributes:['id'], where: { name: queryParameters.types } })).map(type => type.id)
+      if (typeIds.length === 0) {
+        response.status(200).send({ count: 0, results: [] })
+        return
+      }
 
-    query.include.where = joinWhereClause
+      query.include.where = sequelize.literal(`ARRAY(SELECT "typeId" FROM "PokemonTypes" WHERE "pokemonId" = "Pokemon"."id") @> ARRAY[${typeIds}]::smallint[]`)
+    }
 
     const whereClause: {[k: symbol]: object[]} = {
       [Op.and]: []
@@ -49,9 +55,12 @@ export async function list(request: Request, response: Response, next: NextFunct
 }
 
 export async function get(request: Request, response: Response, next: NextFunction): Promise<void> {
-  const id = request.params.id
-
   try {
+    const id = request.params.id
+
+    if (id.match(/\D/) || !Number.isInteger(parseInt(id)))
+      throw new WrongParameterError('id', id, 'not an positive integer')
+
     const pokemon = await Pokemon.findByPk(id, { include: { model: Type, as: 'types', through: { attributes: [] } } })
     if (!pokemon) 
       throw new ResourceNotFoundError(id)

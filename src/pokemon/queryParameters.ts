@@ -53,13 +53,13 @@ export class QueryParameters {
       if (query[paramterName]) {
         const parameterValue = query[paramterName]!
         if (Array.isArray(parameterValue))
-          throw new WrongParameterError('name', parameterValue, 'multiple values')
+          throw new WrongParameterError(paramterName, parameterValue, 'multiple values')
   
         if (typeof parameterValue === 'object')
-          throw new WrongParameterError('name', parameterValue, 'sent as an object')
+          throw new WrongParameterError(paramterName, parameterValue, 'sent as an object')
   
         if (!parameterValue.toString().match(validationRegx))
-          throw new WrongParameterError('name', parameterValue, 'a comma seperated list of strings')
+          throw new WrongParameterError(paramterName, parameterValue, 'a comma seperated list of strings')
         
         this[paramterName] = parsingMethod(parameterValue)
       }

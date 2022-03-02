@@ -122,7 +122,7 @@ Type.belongsToMany(Pokemon, { as: 'pokemon', through: PokemonTypes, foreignKey: 
 Type.belongsToMany(Type, { as: 'matchups', through: TypeMatchup, foreignKey: 'attackingTypeId', otherKey: 'defendingTypeId' })
 
 app.get('/pokemon', pokemonRoutes.list)
-app.get('/pokemon/:id([0-9]*$)', pokemonRoutes.get)
+app.get('/pokemon/:id', pokemonRoutes.get)
 
 app.get('/types', typeRoutes.list)
 app.get('/types/:id([0-9]*$)', typeRoutes.get)

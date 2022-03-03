@@ -1,20 +1,72 @@
 import { NextFunction, Request, Response } from 'express'
 import { Type } from './models'
 import { Pokemon } from '../pokemon/models'
+import { QueryParameters } from './queryParameters'
+import { Op, OrderItem } from 'sequelize'
+import { WrongParameterError } from '../validation/types/parameters/error'
+import { ResourceNotFoundError } from '../validation/resource/error'
 
 export async function list(request: Request, response: Response, next: NextFunction): Promise<void> {
   try {
-    const { count, rows } = await Type.findAndCountAll()
-    response.status(200).send({ count, rows })
+    const queryParameters = new QueryParameters(request.query)
+    
+    const order: OrderItem | OrderItem[] = [
+      ['id', 'ASC'],
+      [{model: Pokemon, as: 'pokemon'}, 'id', 'ASC'],
+      [{model: Type, as: 'matchups'}, 'id', 'ASC'],
+    ];
+
+    const where: {[k: symbol]: object[]} = {
+      [Op.and]: []
+    }
+
+    if (queryParameters.ids) 
+      where[Op.and].push({ id: queryParameters.ids })
+    
+    if (queryParameters.name) 
+      where[Op.and].push({ name: queryParameters.name })
+
+    const query = {
+      include: [
+        {
+          model: Pokemon, 
+          as: 'pokemon',
+          attributes: ['id', 'name'],
+          order: ['id'],
+          through: {
+            attributes: []
+          }
+        },{
+          model: Type, 
+          as: 'matchups',
+          attributes: ['id', 'name'],
+          order: ['name'],
+          through: {
+            as: 'matchup',
+            attributes: ['effectiveness']
+          }
+        }
+      ],
+      where,
+      order,
+      limit: queryParameters.limit,
+      offset: queryParameters.start
+    }
+
+    const rows = await Type.findAll(query)
+    response.status(200).send({ count: rows.length, results: rows })
   } catch (error) {
     next(error)
   }
 }
 
 export async function get(request: Request, response: Response, next: NextFunction): Promise<void> {
-  const id = request.params.id
-
   try {
+    const id = request.params.id
+  
+    if (id.match(/\D/) || !Number.isInteger(parseInt(id)))
+      throw new WrongParameterError('id', id, 'not an positive integer')
+
     const type = await Type.findByPk(id, 
       {
         include: [
@@ -36,7 +88,7 @@ export async function get(request: Request, response: Response, next: NextFuncti
     )
 
     if (!type) 
-      throw new Error(`no ressource found with id ${id}`)
+      throw new ResourceNotFoundError(id)
     
     response.status(200).send(type)
   } catch (error) {

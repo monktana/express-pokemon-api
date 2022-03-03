@@ -125,7 +125,7 @@ app.get('/pokemon', pokemonRoutes.list)
 app.get('/pokemon/:id', pokemonRoutes.get)
 
 app.get('/types', typeRoutes.list)
-app.get('/types/:id([0-9]*$)', typeRoutes.get)
+app.get('/types/:id', typeRoutes.get)
 
 app.use(WrongParameterErrorHandler)
 app.use(ResourceNotFoundErrorHandler)

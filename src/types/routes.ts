@@ -32,7 +32,6 @@ export async function list(request: Request, response: Response, next: NextFunct
           model: Pokemon, 
           as: 'pokemon',
           attributes: ['id', 'name'],
-          order: ['id'],
           through: {
             attributes: []
           }
@@ -40,7 +39,6 @@ export async function list(request: Request, response: Response, next: NextFunct
           model: Type, 
           as: 'matchups',
           attributes: ['id', 'name'],
-          order: ['name'],
           through: {
             as: 'matchup',
             attributes: ['effectiveness']
@@ -67,23 +65,31 @@ export async function get(request: Request, response: Response, next: NextFuncti
     if (id.match(/\D/) || !Number.isInteger(parseInt(id)))
       throw new WrongParameterError('id', id, 'not an positive integer')
 
+    const order: OrderItem | OrderItem[] = [
+      [{model: Pokemon, as: 'pokemon'}, 'id', 'ASC'],
+      [{model: Type, as: 'matchups'}, 'id', 'ASC'],
+    ];
     const type = await Type.findByPk(id, 
       {
         include: [
           {
             model: Pokemon, 
-            as: 'pokemon', 
+            as: 'pokemon',
+            attributes: ['id', 'name'],
             through: {
               attributes: []
             }
           },{
             model: Type, 
-            as: 'matchups', 
+            as: 'matchups',
+            attributes: ['id', 'name'],
             through: {
+              as: 'matchup',
               attributes: ['effectiveness']
             }
           }
-        ]
+        ],
+        order
       }
     )
 

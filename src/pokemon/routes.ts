@@ -32,7 +32,7 @@ export async function list(request: Request, response: Response, next: NextFunct
         return
       }
 
-      query.include.where = sequelize.literal(`ARRAY(SELECT "typeId" FROM "PokemonTypes" WHERE "pokemonId" = "Pokemon"."id") @> ARRAY[${typeIds}]::smallint[]`)
+      query.include.where = sequelize.literal(`ARRAY(SELECT "typeId" FROM "PokemonTypes" WHERE "pokemonId" = "Pokemon"."id") @> ARRAY[${typeIds}]`)
     }
 
     const whereClause: {[k: symbol]: object[]} = {

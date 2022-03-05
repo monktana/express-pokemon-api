@@ -13,5 +13,5 @@ export class Type extends Model<InferAttributes<Type>, InferCreationAttributes<T
 export class TypeMatchup extends Model<InferAttributes<TypeMatchup>, InferCreationAttributes<TypeMatchup>> {
   declare attackingTypeId: CreationOptional<number>
   declare defendingTypeId: CreationOptional<number>
-  declare damageClass: number
+  declare effectiveness: number
 }

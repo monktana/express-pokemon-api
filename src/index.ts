@@ -14,7 +14,7 @@ const sequelize = new Sequelize(process.env.POSTGRES || '')
 Pokemon.init(
   {
     id: {
-      type: DataTypes.SMALLINT,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true
     },
@@ -49,7 +49,7 @@ Pokemon.init(
 Type.init(
   {
     id: {
-      type: DataTypes.SMALLINT,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true
     },
@@ -71,14 +71,14 @@ Type.init(
 PokemonTypes.init(
   {
     pokemonId: {
-      type: DataTypes.SMALLINT,
+      type: DataTypes.INTEGER,
       references: {
         model: Pokemon,
         key: 'id'
       }
     },
     typeId: {
-      type: DataTypes.SMALLINT,
+      type: DataTypes.INTEGER,
       references: {
         model: Type,
         key: 'id'
@@ -94,20 +94,20 @@ PokemonTypes.init(
 TypeMatchup.init(
   {
     attackingTypeId: {
-      type: DataTypes.SMALLINT,
+      type: DataTypes.INTEGER,
       references: {
         model: Type,
         key: 'id'
       }
     },
     defendingTypeId: {
-      type: DataTypes.SMALLINT,
+      type: DataTypes.INTEGER,
       references: {
         model: Type,
         key: 'id'
       }
     },
-    damageClass: {
+    effectiveness: {
       type: DataTypes.REAL
     }
   },

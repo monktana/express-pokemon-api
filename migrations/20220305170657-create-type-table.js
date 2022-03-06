@@ -20,7 +20,7 @@ module.exports = {
     },
     {
       schema: 'public',
-      comment: 'my table',
+      comment: 'Contains the base information of each pokemon type',
     });
   },
 

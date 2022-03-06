@@ -24,14 +24,14 @@ module.exports = {
         allowNull: false,
         onDelete: 'cascade'
       },
-      damageClass: {
-        type: Sequelize.STRING,
+      effectiveness: {
+        type: Sequelize.DOUBLE,
         allowNull: false
       }
     },
     {
       schema: 'public',
-      comment: 'my table',
+      comment: 'Contains the information for the type-type association',
     });
 
     await queryInterface.createTable('PokemonTypes', 
@@ -59,7 +59,7 @@ module.exports = {
     },
     {
       schema: 'public',
-      comment: 'my table',
+      comment: 'Contains the information for the pokemon-type association',
     });
   },
 

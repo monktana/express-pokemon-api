@@ -1,5 +1,8 @@
 import express from 'express'
+import { Errback, ErrorRequestHandler, NextFunction, Request, Response } from 'express'
 import { DataTypes, Sequelize } from 'sequelize'
+import * as Sentry from "@sentry/node";
+import * as Tracing from "@sentry/tracing";
 import { Pokemon, PokemonTypes } from './pokemon/models'
 import * as pokemonRoutes from './pokemon/routes'
 import { Type, TypeMatchup } from './types/models'
@@ -9,8 +12,18 @@ import { WrongParameterErrorHandler } from './validation/types/parameters/middle
 
 const port = 3000
 const app = express()
-const sequelize = new Sequelize(process.env.POSTGRES || '')
 
+Sentry.init({
+  dsn: "https://cbd49684e82c4ba0b2bb7cfa1fb3776c@o1160434.ingest.sentry.io/6244906",
+  integrations: [
+    new Sentry.Integrations.Http({ tracing: true }),
+    new Tracing.Integrations.Express({ app }),
+  ],
+
+  tracesSampleRate: 1.0,
+});
+
+const sequelize = new Sequelize(process.env.POSTGRES || '')
 Pokemon.init(
   {
     id: {
@@ -121,15 +134,29 @@ Pokemon.belongsToMany(Type, { as: 'types', through: PokemonTypes, foreignKey: 'p
 Type.belongsToMany(Pokemon, { as: 'pokemon', through: PokemonTypes, foreignKey: 'typeId', otherKey: 'pokemonId' })
 Type.belongsToMany(Type, { as: 'matchups', through: TypeMatchup, foreignKey: 'attackingTypeId', otherKey: 'defendingTypeId' })
 
+app.use(Sentry.Handlers.requestHandler())
+app.use(Sentry.Handlers.tracingHandler())
+
 app.get('/pokemon', pokemonRoutes.list)
 app.get('/pokemon/:id', pokemonRoutes.get)
 
 app.get('/types', typeRoutes.list)
 app.get('/types/:id', typeRoutes.get)
 
+app.get("/debug-sentry", function mainHandler(req, res) {
+  throw new Error("My first Sentry error!");
+});
+
+app.use(Sentry.Handlers.errorHandler())
+
 app.use(WrongParameterErrorHandler)
 app.use(ResourceNotFoundErrorHandler)
 
+app.use(function onError(error: Errback, request: Request, response: any, next: NextFunction) {
+  response.statusCode = 500;
+  response.end(response.sentry + "\n");
+});
+
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  console.log(`poke-api is listening on port ${port}`)
 })

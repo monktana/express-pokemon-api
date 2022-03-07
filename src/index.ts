@@ -9,7 +9,7 @@ import { Type, TypeMatchup } from './types/models'
 import * as typeRoutes from './types/routes'
 import { ResourceNotFoundErrorHandler } from './validation/resource/middleware'
 import { WrongParameterErrorHandler } from './validation/types/parameters/middleware'
-import { logHandler } from './logging/middleware'
+import { logHandler, errorLogHandler } from './logging/middleware'
 
 const port = 3000
 const app = express()
@@ -153,6 +153,7 @@ app.get("/debug-sentry", function mainHandler(req, res) {
 
 app.use(Sentry.Handlers.errorHandler())
 
+app.use(errorLogHandler)
 app.use(WrongParameterErrorHandler)
 app.use(ResourceNotFoundErrorHandler)
 

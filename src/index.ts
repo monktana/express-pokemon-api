@@ -9,6 +9,7 @@ import { Type, TypeMatchup } from './types/models'
 import * as typeRoutes from './types/routes'
 import { ResourceNotFoundErrorHandler } from './validation/resource/middleware'
 import { WrongParameterErrorHandler } from './validation/types/parameters/middleware'
+import { logHandler } from './logging/middleware'
 
 const port = 3000
 const app = express()
@@ -134,8 +135,11 @@ Pokemon.belongsToMany(Type, { as: 'types', through: PokemonTypes, foreignKey: 'p
 Type.belongsToMany(Pokemon, { as: 'pokemon', through: PokemonTypes, foreignKey: 'typeId', otherKey: 'pokemonId' })
 Type.belongsToMany(Type, { as: 'matchups', through: TypeMatchup, foreignKey: 'attackingTypeId', otherKey: 'defendingTypeId' })
 
+app.disable('x-powered-by')
+
 app.use(Sentry.Handlers.requestHandler())
 app.use(Sentry.Handlers.tracingHandler())
+app.use(logHandler)
 
 app.get('/pokemon', pokemonRoutes.list)
 app.get('/pokemon/:id', pokemonRoutes.get)

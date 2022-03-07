@@ -10,21 +10,8 @@ import { WrongParameterError } from '../validation/types/parameters/error'
 export async function list(request: Request, response: Response, next: NextFunction): Promise<void> {
   try {
     const queryParameters = new QueryParameters(request.query)
-    const query = {
-      include: {
-        model: Type,
-        as: 'types',
-        where: {},
-        through: {
-          attributes: []
-        }
-      },
-      where: {},
-      order: ['id'],
-      limit: queryParameters.limit,
-      offset: queryParameters.start
-    }
 
+    let includeWhere: sequelize.Utils.Literal | undefined = undefined
     if (queryParameters.types) {
       const typeIds = (await Type.findAll({ attributes:['id'], where: { name: queryParameters.types } })).map(type => type.id)
       if (typeIds.length === 0) {
@@ -32,21 +19,33 @@ export async function list(request: Request, response: Response, next: NextFunct
         return
       }
 
-      query.include.where = sequelize.literal(`ARRAY(SELECT "typeId" FROM "PokemonTypes" WHERE "pokemonId" = "Pokemon"."id") @> ARRAY[${typeIds}]`)
+      includeWhere = sequelize.literal(`ARRAY(SELECT "typeId" FROM "PokemonTypes" WHERE "pokemonId" = "Pokemon"."id") @> ARRAY[${typeIds}]`)
     }
 
-    const whereClause: {[k: symbol]: object[]} = {
+    const where: {[k: symbol]: object[]} = {
       [Op.and]: []
     }
 
     if (queryParameters.ids) 
-      whereClause[Op.and].push({ id: queryParameters.ids })
+      where[Op.and].push({ id: queryParameters.ids })
     
     if (queryParameters.name) 
-      whereClause[Op.and].push({ name: queryParameters.name })
+      where[Op.and].push({ name: queryParameters.name })
 
-    query.where = whereClause
-
+    const query = {
+      include: {
+        model: Type,
+        as: 'types',
+        where: includeWhere || {},
+        through: {
+          attributes: []
+        }
+      },
+      where,
+      order: ['id'],
+      limit: queryParameters.limit,
+      offset: queryParameters.start
+    }
     const rows = await Pokemon.findAll(query)
     response.status(200).send({ count: rows.length, results: rows })
   } catch (error) {

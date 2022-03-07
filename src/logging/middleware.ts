@@ -1,17 +1,17 @@
 import { Errback, ErrorRequestHandler, RequestHandler, NextFunction, Request, Response } from 'express'
-import { logger, errorLogger } from "./logger";
+import { logger } from "./logger";
 
 export const logHandler: RequestHandler = function(request: Request, response: Response, next: NextFunction) {
-  const {path, method, query, params} = request
+  const {id, path, method, ip, query} = request
   const requestTime = Date.now()
 
-  logger.info(`[${method}] ${path}: query = ${query.toString()}, parameters = ${params.toString()}`)
+  logger.info(`[${id}] ${method} ${path} | ip ${ip} query ${JSON.stringify(query)}`)
 
   var end = response.end;
   response.end = function(chunk?: any, encoding?: any, callback?: (() => void) | undefined): Response<any, Record<string, any>> {
     const responseTime = (Date.now()) - requestTime;
 
-    logger.info(`[${method}] ${path}: finished in ${responseTime}ms with status ${response.statusCode}`)
+    logger.info(`[${id}] ${method} ${path}: finished in ${responseTime}ms with status ${response.statusCode}`)
 
     response.end = end;
     return response.end(chunk, encoding, callback)
@@ -21,8 +21,8 @@ export const logHandler: RequestHandler = function(request: Request, response: R
 }
 
 export const errorLogHandler: ErrorRequestHandler = function(error: Errback, request: Request, response: Response, next: NextFunction) {
-  const {path, method} = request
-  errorLogger.error(`[${method}] ${path} failed: ${error.toString()}`)
+  const {id, path, method} = request
+  logger.error(`[${id}] ${method} ${path} | ${error.toString()}`)
 
   next(error)
 }

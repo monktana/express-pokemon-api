@@ -1,5 +1,5 @@
 import express from 'express'
-import { Errback, ErrorRequestHandler, NextFunction, Request, Response } from 'express'
+import { Errback, NextFunction, Request } from 'express'
 import { DataTypes, Sequelize } from 'sequelize'
 import * as Sentry from "@sentry/node";
 import * as Tracing from "@sentry/tracing";
@@ -137,29 +137,31 @@ Type.belongsToMany(Type, { as: 'matchups', through: TypeMatchup, foreignKey: 'at
 
 app.disable('x-powered-by')
 
+// Middleware
 app.use(Sentry.Handlers.requestHandler())
 app.use(Sentry.Handlers.tracingHandler())
+app.use(function addID(request: Request, response: any, next: NextFunction) {
+  request.id = new Date().getTime()
+  next()
+})
 app.use(logHandler)
 
+// Routes
 app.get('/pokemon', pokemonRoutes.list)
 app.get('/pokemon/:id', pokemonRoutes.get)
 
 app.get('/types', typeRoutes.list)
 app.get('/types/:id', typeRoutes.get)
 
-app.get("/debug-sentry", function mainHandler(req, res) {
-  throw new Error("My first Sentry error!");
-});
-
+// ErrorHandlers
 app.use(Sentry.Handlers.errorHandler())
-
 app.use(errorLogHandler)
 app.use(WrongParameterErrorHandler)
 app.use(ResourceNotFoundErrorHandler)
 
 app.use(function onError(error: Errback, request: Request, response: any, next: NextFunction) {
   response.statusCode = 500;
-  response.end(response.sentry + "\n");
+  response.end("Internal Server Error.");
 });
 
 app.listen(port, () => {

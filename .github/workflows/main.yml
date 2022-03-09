@@ -36,7 +36,7 @@ jobs:
       with:
         repository: "monktana/jest-pokemon-api"
         path: "tests"
-    - run: "npm run test"
+    - run: "npm install && npm run test"
       working-directory: "tests"
   build:
     runs-on: ubuntu-latest

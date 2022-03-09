@@ -30,7 +30,13 @@ jobs:
         path: "app"
     - run: "touch .env"
       working-directory: "app"
-    - run: "npm install && npx sequelize-cli db:migrate --url 'postgres://postgres:postgres@localhost:5432/pokemon_api' && npm run start &"
+    - run: "npm install"
+      working-directory: "app"
+    - run: "npx sequelize-cli db:migrate --url 'postgres://postgres:postgres@localhost:5432/pokemon_api'"
+      working-directory: "app"
+    - run: "npm run build"
+      working-directory: "app"
+    - run: "node -r dotenv/config . &> serverlog.txt &"
       working-directory: "app"
     - run: sleep 60s
       shell: bash
@@ -40,6 +46,9 @@ jobs:
         path: "tests"
     - run: "npm install && npm run test"
       working-directory: "tests"
+    - run: "cat serverlog.txt"
+      working-directory: "app"
+      if: always()
   build:
     runs-on: ubuntu-latest
     needs: [test]

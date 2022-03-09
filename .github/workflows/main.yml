@@ -32,6 +32,9 @@ jobs:
       working-directory: "app"
     - run: "npm install && npx sequelize-cli db:migrate --url 'postgres://postgres:postgres@localhost:5432/pokemon_api' && npm run start &"
       working-directory: "app"
+    - uses: iFaxity/wait-on-action@v1
+      with:
+        resource: http://localhost:3000
     - uses: actions/checkout@v3
       with:
         repository: "monktana/jest-pokemon-api"

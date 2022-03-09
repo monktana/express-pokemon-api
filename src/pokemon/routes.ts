@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express'
 import { Pokemon } from './models'
 import { Type } from '../types/models'
 import { QueryParameters } from './queryParameters'
-import sequelize, { Op } from 'sequelize'
+import sequelize, { Op, OrderItem } from 'sequelize'
 import { ResourceNotFoundError } from '../validation/resource/error'
 import { WrongParameterError } from '../validation/types/parameters/error'
 
@@ -32,6 +32,11 @@ export async function list(request: Request, response: Response, next: NextFunct
     if (queryParameters.name) 
       where[Op.and].push({ name: queryParameters.name })
 
+    const order: OrderItem | OrderItem[] = [
+      ['id', 'ASC'],
+      [{model: Type, as: 'types'}, 'id', 'ASC'],
+    ];
+
     const query = {
       include: {
         model: Type,
@@ -42,7 +47,7 @@ export async function list(request: Request, response: Response, next: NextFunct
         }
       },
       where,
-      order: ['id'],
+      order,
       limit: queryParameters.limit,
       offset: queryParameters.start
     }

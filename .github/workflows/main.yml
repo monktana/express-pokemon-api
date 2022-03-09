@@ -34,7 +34,7 @@ jobs:
       working-directory: "app"
     - uses: iFaxity/wait-on-action@v1
       with:
-        tcp: localhost:3000
+        resource: localhost:3000
     - uses: actions/checkout@v3
       with:
         repository: "monktana/jest-pokemon-api"

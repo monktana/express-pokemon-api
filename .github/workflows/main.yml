@@ -30,7 +30,7 @@ jobs:
         path: "app"
     - run: "touch .env"
       working-directory: "app"
-    - run: "npm install && npx sequelize-cli db:migrate --url 'postgres://postgres:postgres@localhost:5432/pokemon_api' && npm run start"
+    - run: "npm install && npx sequelize-cli db:migrate --url 'postgres://postgres:postgres@localhost:5432/pokemon_api' && npm run start &"
       working-directory: "app"
     - uses: actions/checkout@v3
       with:

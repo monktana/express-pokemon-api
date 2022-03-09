@@ -34,12 +34,12 @@ jobs:
       working-directory: "app"
     - run: "npx sequelize-cli db:migrate --url 'postgres://postgres:postgres@localhost:5432/pokemon_api'"
       working-directory: "app"
+    - run: "npx sequelize-cli db:seed:all --url 'postgres://postgres:postgres@localhost:5432/pokemon_api'"
+      working-directory: "app"
     - run: "npm run build"
       working-directory: "app"
     - run: "node -r dotenv/config . &> serverlog.txt &"
       working-directory: "app"
-    - run: sleep 60s
-      shell: bash
     - uses: actions/checkout@v3
       with:
         repository: "monktana/jest-pokemon-api"

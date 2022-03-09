@@ -27,11 +27,13 @@ jobs:
       with:
         path: "app"
     - run: "npm install && npx sequelize-cli db:migrate --url 'postgres://postgres:postgres@localhost:5432/pokemon_api' && npm run start"
+      working-directory: "app"
     - uses: actions/checkout@v3
       with:
         repository: "monktana/jest-pokemon-api"
         path: "tests"
-        run: "npm run test"
+    - run: "npm run test"
+      working-directory: "tests"
   build:
     runs-on: ubuntu-latest
     needs: [test]

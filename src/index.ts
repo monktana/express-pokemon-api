@@ -15,7 +15,7 @@ const port = 3000
 const app = express()
 
 Sentry.init({
-  dsn: "https://cbd49684e82c4ba0b2bb7cfa1fb3776c@o1160434.ingest.sentry.io/6244906",
+  dsn: process.env.SENTRY_DSN,
   integrations: [
     new Sentry.Integrations.Http({ tracing: true }),
     new Tracing.Integrations.Express({ app }),
@@ -24,7 +24,7 @@ Sentry.init({
   tracesSampleRate: 1.0,
 });
 
-const sequelize = new Sequelize(process.env.POSTGRES || '')
+const sequelize = new Sequelize(process.env.DATABASE_URL || '')
 Pokemon.init(
   {
     id: {

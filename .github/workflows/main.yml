@@ -32,9 +32,9 @@ jobs:
       working-directory: "app"
     - run: "npm install"
       working-directory: "app"
-    - run: "npx sequelize-cli db:migrate --url 'postgres://postgres:postgres@localhost:5432/pokemon_api'"
+    - run: "npx sequelize-cli db:migrate --env test"
       working-directory: "app"
-    - run: "npx sequelize-cli db:seed:all --url 'postgres://postgres:postgres@localhost:5432/pokemon_api'"
+    - run: "npx sequelize-cli db:seed:all --env test"
       working-directory: "app"
     - run: "npm run build"
       working-directory: "app"
@@ -57,5 +57,5 @@ jobs:
       - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: "poke-rest-api" #Must be unique in Heroku
-          heroku_email: "svengiebelmann@gmail.com"
+          heroku_app_name: ${{secrets.HEROKU_APP}} #Must be unique in Heroku
+          heroku_email: ${{secrets.HEROKU_MAIL}}

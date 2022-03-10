@@ -153,6 +153,10 @@ app.get('/pokemon/:id', pokemonRoutes.get)
 app.get('/types', typeRoutes.list)
 app.get('/types/:id', typeRoutes.get)
 
+app.get(`/.well-known/acme-challenge/${process.env.ACME_CHALLENGE}`, (request: Request, response: any, next: NextFunction) => {
+  response.status(200).send(process.env.ACME_CHALLENGE_VALUE)
+})
+
 // ErrorHandlers
 app.use(Sentry.Handlers.errorHandler())
 app.use(errorLogHandler)

@@ -9,7 +9,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      POSTGRES: postgres://postgres:postgres@localhost:5432/pokemon_api
+      DATABASE_URL: ${{secrets.DATABASE_URL}}
     services:
       postgres:
         image: postgres

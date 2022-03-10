@@ -4,7 +4,7 @@
   "description": "RESt API for pokémon data.",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "npx tsc",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "start": "npm run build && node -r dotenv/config .",
     "test": "echo \"Error: no test specified\" && exit 1"

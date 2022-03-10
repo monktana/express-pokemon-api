@@ -11,7 +11,6 @@ import { ResourceNotFoundErrorHandler } from './validation/resource/middleware'
 import { WrongParameterErrorHandler } from './validation/types/parameters/middleware'
 import { logHandler, errorLogHandler } from './logging/middleware'
 
-const port = 3000
 const app = express()
 
 Sentry.init({
@@ -168,6 +167,6 @@ app.use(function onError(error: Errback, request: Request, response: any, next: 
   response.end("Internal Server Error.");
 });
 
-app.listen(port, () => {
-  console.log(`poke-api is listening on port ${port}`)
+app.listen(process.env.PORT, () => {
+  console.log(`poke-api is listening on port ${process.env.PORT}`)
 })

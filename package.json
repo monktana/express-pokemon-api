@@ -1,16 +1,21 @@
 {
   "name": "express-pokemon-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "RESt API for pokémon data.",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "start": "tsc && node -r dotenv/config .",
+    "start": "npm run build && node -r dotenv/config .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "rest-api",
+    "express",
+    "typescript",
+    "pokemon"
+  ],
+  "author": "monktana",
   "license": "ISC",
   "dependencies": {
     "@sentry/node": "^6.18.1",

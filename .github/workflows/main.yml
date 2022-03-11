@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: ${{secrets.DATABASE_URL}}
-      PORT: 80
+      PORT: 3000
     services:
       postgres:
         image: postgres

@@ -23,15 +23,20 @@ Sentry.init({
   tracesSampleRate: 1.0,
 });
 
-const sequelize = new Sequelize(process.env.DATABASE_URL || '', {
-  dialect: "postgres",
-  dialectOptions: {
-    ssl: {
-      "require": true,
-      "rejectUnauthorized": false
-    },
+let connectionOptions = {}
+if (process.env.NODE_ENV === 'production') {
+  connectionOptions = {
+    "dialect": "postgres",
+    "dialectOptions": {
+      "ssl": {
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    }
   }
-})
+}
+
+const sequelize = new Sequelize(process.env.DATABASE_URL || '', connectionOptions)
 Pokemon.init(
   {
     id: {

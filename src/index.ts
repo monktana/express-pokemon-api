@@ -3,6 +3,7 @@ import { Errback, NextFunction, Request } from 'express'
 import { DataTypes, Sequelize } from 'sequelize'
 import * as Sentry from "@sentry/node";
 import * as Tracing from "@sentry/tracing";
+import config from "./config";
 import { Pokemon, PokemonTypes } from './pokemon/models'
 import * as pokemonRoutes from './pokemon/routes'
 import { Type, TypeMatchup } from './types/models'
@@ -23,20 +24,13 @@ Sentry.init({
   tracesSampleRate: 1.0,
 });
 
-let connectionOptions = {}
-if (process.env.NODE_ENV === 'production') {
-  connectionOptions = {
-    "dialect": "postgres",
-    "dialectOptions": {
-      "ssl": {
-        "require": true,
-        "rejectUnauthorized": false
-      }
-    }
-  }
+if (!process.env.NODE_ENV) {
+  throw new Error("NODE Environment not defined!")
 }
 
-const sequelize = new Sequelize(process.env.DATABASE_URL || '', connectionOptions)
+const dbConfig : DBConfig = config;
+const sequelize = new Sequelize(dbConfig[process.env.NODE_ENV])
+
 Pokemon.init(
   {
     id: {
@@ -165,20 +159,11 @@ app.get('/pokemon/:id', pokemonRoutes.get)
 app.get('/types', typeRoutes.list)
 app.get('/types/:id', typeRoutes.get)
 
-app.get(`/.well-known/acme-challenge/${process.env.ACME_CHALLENGE}`, (request: Request, response: any, next: NextFunction) => {
-  response.status(200).send(process.env.ACME_CHALLENGE_VALUE)
-})
-
 // ErrorHandlers
 app.use(Sentry.Handlers.errorHandler())
 app.use(errorLogHandler)
 app.use(WrongParameterErrorHandler)
 app.use(ResourceNotFoundErrorHandler)
-
-app.use(function onError(error: Errback, request: Request, response: any, next: NextFunction) {
-  response.statusCode = 500;
-  response.end("Internal Server Error.");
-});
 
 app.listen(process.env.PORT, () => {
   console.log(`poke-api is listening on port ${process.env.PORT}`)

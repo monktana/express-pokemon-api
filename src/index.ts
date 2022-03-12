@@ -1,5 +1,4 @@
-import express from 'express'
-import { Errback, NextFunction, Request } from 'express'
+import express, { NextFunction, Request, Response } from 'express'
 import { DataTypes, Sequelize } from 'sequelize'
 import * as Sentry from "@sentry/node";
 import * as Tracing from "@sentry/tracing";
@@ -146,7 +145,7 @@ app.disable('x-powered-by')
 // Middleware
 app.use(Sentry.Handlers.requestHandler())
 app.use(Sentry.Handlers.tracingHandler())
-app.use(function addID(request: Request, response: any, next: NextFunction) {
+app.use(function addID(request: Request, response: Response, next: NextFunction) {
   request.id = new Date().getTime()
   next()
 })

@@ -1,7 +1,7 @@
 import QueryString from 'qs'
 import { WrongParameterError } from '../validation/types/parameters/error'
 
-enum QUERYDEFAULTS {
+export enum QUERYDEFAULTS {
   START = 0,
   LIMIT = 10000
 }

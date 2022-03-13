@@ -28,9 +28,13 @@ if (!process.env.NODE_ENV) {
 }
 
 const dbConfig : DBConfig = config;
-console.log(process.env.NODE_ENV)
-console.log(dbConfig[process.env.NODE_ENV])
-const sequelize = new Sequelize(dbConfig[process.env.NODE_ENV])
+let sequelize;
+if (process.env.NODE_ENV === 'production') {
+  delete dbConfig[process.env.NODE_ENV]['use_env_variable']
+  sequelize = new Sequelize(process.env.DATABASE_URL!, dbConfig[process.env.NODE_ENV])
+} else {
+  sequelize = new Sequelize(dbConfig[process.env.NODE_ENV])
+}
 
 Pokemon.init(
   {

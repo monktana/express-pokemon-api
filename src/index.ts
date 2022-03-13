@@ -28,6 +28,8 @@ if (!process.env.NODE_ENV) {
 }
 
 const dbConfig : DBConfig = config;
+console.log(process.env.NODE_ENV)
+console.log(dbConfig[process.env.NODE_ENV])
 const sequelize = new Sequelize(dbConfig[process.env.NODE_ENV])
 
 Pokemon.init(

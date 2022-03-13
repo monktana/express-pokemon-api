@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NODE_ENV: test
+      API_URL: "http://localhost:3000"
+      PORT: 3000
     services:
       postgres:
         image: postgres
@@ -30,9 +32,11 @@ jobs:
         path: "app"
     - run: "npm install"
       working-directory: "app"
-    - run: "npx sequelize-cli db:migrate --env test"
+    - run: "npm run test"
       working-directory: "app"
-    - run: "npx sequelize-cli db:seed:all --env test"
+    - run: "npx sequelize-cli db:migrate"
+      working-directory: "app"
+    - run: "npx sequelize-cli db:seed:all"
       working-directory: "app"
     - run: "npm run build"
       working-directory: "app"

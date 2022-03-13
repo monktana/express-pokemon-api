@@ -41,9 +41,6 @@ export class QueryParameters {
           throw new WrongParameterError(parameter, 'a positive integer')
 
         const parameterAsInt = parseInt(parameterAsString)
-        if (!Number.isInteger(parameterAsInt))
-          throw new WrongParameterError(parameter, 'a positive integer')
-        
         this[parameter] = parameterAsInt
       }
     })
@@ -53,9 +50,6 @@ export class QueryParameters {
 
       if (query[paramterName]) {
         const parameterValue = query[paramterName]!
-        if (Array.isArray(parameterValue))
-          throw new WrongParameterError(paramterName, format)
-  
         if (typeof parameterValue === 'object')
           throw new WrongParameterError(paramterName, format)
   

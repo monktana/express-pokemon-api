@@ -1,6 +1,6 @@
 export class WrongParameterError extends Error {
-  constructor(parameterName: string, parameterValue: number | string | Record<string, unknown> | Array<unknown>, reason: string) {
-    const message = `Recieved value '${parameterValue}' for parameter '${parameterName}' is invalid because: ${reason}`
+  constructor(parameterName: string, format: string) {
+    const message = `Value of parameter '${parameterName}' has to be: ${format}`
     super(message)
   }
 }

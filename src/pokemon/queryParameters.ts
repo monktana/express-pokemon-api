@@ -8,6 +8,7 @@ export enum QUERYDEFAULTS {
 
 interface Filter {
   paramterName: string,
+  format: string,
   validationRegx: RegExp,
   parsingMethod: (input: string) => string | number | Array<number> | Array<string>
 }
@@ -27,9 +28,9 @@ export class QueryParameters {
 
   static readonly PAGINATION: string[] = ['start', 'limit']
   static readonly FILTER: Filter[] = [
-    { paramterName: 'name', validationRegx: /^[a-zA-Z-]*$/gm, parsingMethod: (x: string): string => x },
-    { paramterName: 'ids', validationRegx: /^[0-9,]*$/gm, parsingMethod: QueryParameters.parseIDs },
-    { paramterName: 'types', validationRegx: /^[a-zA-Z,]*$/gm, parsingMethod: QueryParameters.parseTypes }
+    { paramterName: 'name', format: 'single alphabetical string', validationRegx: /^[a-zA-Z-]*$/gm, parsingMethod: (x: string): string => x },
+    { paramterName: 'ids', format: 'a comma seperated list of integers', validationRegx: /^[0-9,]*$/gm, parsingMethod: QueryParameters.parseIDs },
+    { paramterName: 'types', format: 'a comma seperated list of string', validationRegx: /^[a-zA-Z,]*$/gm, parsingMethod: QueryParameters.parseTypes }
   ]
 
   constructor(query: QueryString.ParsedQs) {
@@ -37,29 +38,29 @@ export class QueryParameters {
       if (query[parameter]) {
         const parameterAsString = query[parameter]!.toString()
         if (parameterAsString.match(/\D/))
-          throw new WrongParameterError(parameter, parameterAsString, 'not an positive integer')
+          throw new WrongParameterError(parameter, 'a positive integer')
 
         const parameterAsInt = parseInt(parameterAsString)
         if (!Number.isInteger(parameterAsInt))
-          throw new WrongParameterError(parameter, parameterAsInt, 'not an integer')
+          throw new WrongParameterError(parameter, 'a positive integer')
         
         this[parameter] = parameterAsInt
       }
     })
 
     QueryParameters.FILTER.forEach((filter: Filter) => {
-      const { paramterName, validationRegx, parsingMethod } = filter
+      const { paramterName, format, validationRegx, parsingMethod } = filter
 
       if (query[paramterName]) {
         const parameterValue = query[paramterName]!
         if (Array.isArray(parameterValue))
-          throw new WrongParameterError(paramterName, parameterValue, 'multiple values')
+          throw new WrongParameterError(paramterName, format)
   
         if (typeof parameterValue === 'object')
-          throw new WrongParameterError(paramterName, parameterValue, 'sent as an object')
+          throw new WrongParameterError(paramterName, format)
   
         if (!parameterValue.toString().match(validationRegx))
-          throw new WrongParameterError(paramterName, parameterValue, 'a comma seperated list of strings')
+          throw new WrongParameterError(paramterName, format)
         
         this[paramterName] = parsingMethod(parameterValue)
       }

@@ -10,7 +10,6 @@ describe("general", () => {
     expect(parameters.start).toBe(QUERYDEFAULTS.START)
     expect(parameters.limit).toBe(QUERYDEFAULTS.LIMIT)
     expect(parameters.name).toBeUndefined()
-    expect(parameters.types).toBeUndefined()
     expect(parameters.ids).toBeUndefined()
   });
 
@@ -133,17 +132,10 @@ describe("pagination", () => {
 describe("filter", () => {
   describe("name", () => {
     it('sets name according to query', async () => {
-      const query = qs.parse("name=bulbasaur")
+      const query = qs.parse("name=normal")
       const parameters = new QueryParameters(query)
     
-      expect(parameters.name).toBe('bulbasaur');
-    });
-
-    it('can handle the character - ', async () => {
-      const query = qs.parse("name=mr-mime")
-      const parameters = new QueryParameters(query)
-    
-      expect(parameters.name).toBe('mr-mime');
+      expect(parameters.name).toBe('normal');
     });
 
     it('can handle null', async () => {
@@ -163,12 +155,23 @@ describe("filter", () => {
         expect((<WrongParameterError>error).message).toBe("Value of parameter 'name' has to be: single alphabetical string")
       }
     });
+
+    it('recieves an error for non alpha-numerical value', async () => {
+      expect.assertions(1);
+
+      try {
+        const query = qs.parse("name=fi-re")
+        new QueryParameters(query)
+      } catch (error) {
+        expect((<WrongParameterError>error).message).toBe("Value of parameter 'name' has to be: single alphabetical string")
+      }
+    });
     
     it('recieves an error for multiple names', async () => {
       expect.assertions(1);
 
       try {
-        const query = qs.parse("name=bulbasaur,ivysaur")
+        const query = qs.parse("name=normal,ghost")
         new QueryParameters(query)
       } catch (error) {
         expect((<WrongParameterError>error).message).toBe("Value of parameter 'name' has to be: single alphabetical string")
@@ -179,21 +182,21 @@ describe("filter", () => {
       expect.assertions(3);
 
       try {
-        const query = qs.parse("name=bulbasaur&name=ivysaur")
+        const query = qs.parse("name=normal&name=ghost")
         new QueryParameters(query)
       } catch (error) {
         expect((<WrongParameterError>error).message).toBe("Value of parameter 'name' has to be: single alphabetical string")
       }
 
       try {
-        const query = qs.parse("name[]=bulbasaur")
+        const query = qs.parse("name[]=normal")
         new QueryParameters(query)
       } catch (error) {
         expect((<WrongParameterError>error).message).toBe("Value of parameter 'name' has to be: single alphabetical string")
       }
 
       try {
-        const query = qs.parse("name[1]=bulbasaur")
+        const query = qs.parse("name[1]=normal")
         new QueryParameters(query)
       } catch (error) {
         expect((<WrongParameterError>error).message).toBe("Value of parameter 'name' has to be: single alphabetical string")
@@ -204,35 +207,35 @@ describe("filter", () => {
       expect.assertions(5);
 
       try {
-        const query = qs.parse("name[100]=bulbasaur")
+        const query = qs.parse("name[100]=normal")
         new QueryParameters(query)
       } catch (error) {
         expect((<WrongParameterError>error).message).toBe("Value of parameter 'name' has to be: single alphabetical string")
       }
 
       try {
-        const query = qs.parse("name[0][foo]=bulbasaur")
+        const query = qs.parse("name[0][foo]=normal")
         new QueryParameters(query)
       } catch (error) {
         expect((<WrongParameterError>error).message).toBe("Value of parameter 'name' has to be: single alphabetical string")
       }
 
       try {
-        const query = qs.parse("name[]=bulbasaur&name[foo]=charmander")
+        const query = qs.parse("name[]=normal&name[foo]=ghost")
         new QueryParameters(query)
       } catch (error) {
         expect((<WrongParameterError>error).message).toBe("Value of parameter 'name' has to be: single alphabetical string")
       }
 
       try {
-        const query = qs.parse("name[foo]=bulbasaur")
+        const query = qs.parse("name[foo]=normal")
         new QueryParameters(query)
       } catch (error) {
         expect((<WrongParameterError>error).message).toBe("Value of parameter 'name' has to be: single alphabetical string")
       }
 
       try {
-        const query = qs.parse("name[foo][bar]=bulbasaur")
+        const query = qs.parse("name[foo][bar]=normal")
         new QueryParameters(query)
       } catch (error) {
         expect((<WrongParameterError>error).message).toBe("Value of parameter 'name' has to be: single alphabetical string")
@@ -394,152 +397,4 @@ describe("filter", () => {
       }
     });
   });
-
-  describe("types", () => {
-    it('sets types according to query', async () => {
-      const query = qs.parse("types=normal")
-      const parameters = new QueryParameters(query)
-    
-      expect(parameters.types).toStrictEqual(['normal']);
-    });
-
-    it('allows filtering by multiple types', async () => {
-      const query = qs.parse("types=normal,ghost")
-      const parameters = new QueryParameters(query)
-    
-      expect(parameters.types).toStrictEqual(['normal','ghost']);
-    });
-
-    it('can handle null', async () => {
-      const query = qs.parse("types=")
-      const parameters = new QueryParameters(query)
-    
-      expect(parameters.name).toBeUndefined();
-    });
-    
-    it('recieves an error if types contain a numerical value', async () => {
-      expect.assertions(2);
-
-      try {
-        const query = qs.parse("types=1")
-        new QueryParameters(query)
-      } catch (error) {
-        expect((<WrongParameterError>error).message).toBe("Value of parameter 'types' has to be: a comma seperated list of string")
-      }
-
-      try {
-        const query = qs.parse("types=normal,1")
-        new QueryParameters(query)
-      } catch (error) {
-        expect((<WrongParameterError>error).message).toBe("Value of parameter 'types' has to be: a comma seperated list of string")
-      }
-    });
-    
-    it('recieves an error if types contain special characters apart from comma', async () => {
-      expect.assertions(3);
-
-      try {
-        const query = qs.parse("types=%A7")
-        new QueryParameters(query)
-      } catch (error) {
-        expect((<WrongParameterError>error).message).toBe("Value of parameter 'types' has to be: a comma seperated list of string")
-      }
-
-      try {
-        const query = qs.parse("types=[normal,ghost]")
-        new QueryParameters(query)
-      } catch (error) {
-        expect((<WrongParameterError>error).message).toBe("Value of parameter 'types' has to be: a comma seperated list of string")
-      }
-
-      try {
-        const query = qs.parse("types=(normal,ghost)")
-        new QueryParameters(query)
-      } catch (error) {
-        expect((<WrongParameterError>error).message).toBe("Value of parameter 'types' has to be: a comma seperated list of string")
-      }
-    });
-    
-    it('recieves an error if types are not seperated by comma', async () => {
-      expect.assertions(3);
-
-      try {
-        const query = qs.parse("types=normal.ghost")
-        new QueryParameters(query)
-      } catch (error) {
-        expect((<WrongParameterError>error).message).toBe("Value of parameter 'types' has to be: a comma seperated list of string")
-      }
-
-      try {
-        const query = qs.parse("types=normal;ghost")
-        new QueryParameters(query)
-      } catch (error) {
-        expect((<WrongParameterError>error).message).toBe("Value of parameter 'types' has to be: a comma seperated list of string")
-      }
-
-      try {
-        const query = qs.parse("types=normal|ghost")
-        new QueryParameters(query)
-      } catch (error) {
-        expect((<WrongParameterError>error).message).toBe("Value of parameter 'types' has to be: a comma seperated list of string")
-      }
-    });
-    
-    it('recieves an error if types parameter is an array', async () => {
-      expect.assertions(3);
-
-      try {
-        const query = qs.parse("types=normal&types=ghost")
-        new QueryParameters(query)
-      } catch (error) {
-        expect((<WrongParameterError>error).message).toBe("Value of parameter 'types' has to be: a comma seperated list of string")
-      }
-
-      try {
-        const query = qs.parse("types[]=normal")
-        new QueryParameters(query)
-      } catch (error) {
-        expect((<WrongParameterError>error).message).toBe("Value of parameter 'types' has to be: a comma seperated list of string")
-      }
-
-      try {
-        const query = qs.parse("types[0]=normal")
-        new QueryParameters(query)
-      } catch (error) {
-        expect((<WrongParameterError>error).message).toBe("Value of parameter 'types' has to be: a comma seperated list of string")
-      }
-    });
-    
-    it('recieves an error if types parameter is an object', async () => {
-      expect.assertions(4);
-
-      try {
-        const query = qs.parse("types[foo]=normal")
-        new QueryParameters(query)
-      } catch (error) {
-        expect((<WrongParameterError>error).message).toBe("Value of parameter 'types' has to be: a comma seperated list of string")
-      }
-
-      try {
-        const query = qs.parse("types[][foo]=normal")
-        new QueryParameters(query)
-      } catch (error) {
-        expect((<WrongParameterError>error).message).toBe("Value of parameter 'types' has to be: a comma seperated list of string")
-      }
-
-      try {
-        const query = qs.parse("types[100]=normal")
-        new QueryParameters(query)
-      } catch (error) {
-        expect((<WrongParameterError>error).message).toBe("Value of parameter 'types' has to be: a comma seperated list of string")
-      }
-
-      try {
-        const query = qs.parse("types[]=normal&types[foo]=ghost")
-        new QueryParameters(query)
-      } catch (error) {
-        expect((<WrongParameterError>error).message).toBe("Value of parameter 'types' has to be: a comma seperated list of string")
-      }
-    });
-  })
 })

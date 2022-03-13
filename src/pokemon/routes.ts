@@ -63,7 +63,7 @@ export async function get(request: Request, response: Response, next: NextFuncti
     const id = request.params.id
 
     if (id.match(/\D/) || !Number.isInteger(parseInt(id)))
-      throw new WrongParameterError('id', id, 'not an positive integer')
+      throw new WrongParameterError('id', 'a positive integer')
 
     const pokemon = await Pokemon.findByPk(id, { include: { model: Type, as: 'types', through: { attributes: [] } } })
     if (!pokemon) 

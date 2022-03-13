@@ -1,16 +1,10 @@
 const config = {
   development: {
-    username: "postgres",
-    password: "postgres",
-    database: "pokemon_api",
-    host: "127.0.0.1",
+    use_env_variable: "DATABASE_URL",
     dialect: "postgres"
   },
   test: {
-    username: "postgres",
-    password: "postgres",
-    database: "pokemon_api",
-    host: "127.0.0.1",
+    use_env_variable: "DATABASE_URL",
     dialect: "postgres"
   },
   production: {

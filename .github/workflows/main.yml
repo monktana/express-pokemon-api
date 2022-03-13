@@ -11,6 +11,7 @@ jobs:
     env:
       NODE_ENV: test
       API_URL: "http://localhost:3000"
+      DATABASE_URL: "postgres://postgres:postgres@localhost:5432/pokemon_api"
       PORT: 3000
     services:
       postgres:
